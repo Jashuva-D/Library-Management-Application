@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script type="text/javascript" src="Scripts/jquery-1.10.2.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#tableid').css("display", "none");
+            $('#subbutton').click(function () {
+                $('#tableid').css("display", "block");
+                var id = $('#bookid').val();
+                alert(id);
+                $.ajax({
+                    url: 'http://localhost:7070/api/books/'+id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (products) {
+                        $('#id').html(products.ID);
+                        $('#title').html(products.Title);
+                    },
+                    error: function (request, message, error) {
+                        //handleException(request, message, error);
+                    }
+                });
+            });
+        })
+    </script>
+</head>
+<body>
+    <h1>Libray Manage System</h1>
+    <h1 style="color:red;">Find by ID</h1>
+    <input type="text" id="bookid" />
+    <input type="button" id="subbutton" value="Get Details"/>
+    <table id="tableid">
+        
+        <tr>
+            <td>
+                <h1 style="color:dimgray;">ID</h1>
+            </td>
+            <td>
+                <h1 id="id" style="color:green;"></h1>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h1 style="color:dimgray;">Title</h1>
+            </td>
+            <td>
+                <h1 id="title" style="color:green;"></h1>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

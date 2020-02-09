@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Adding the book</title>
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+        <script type="text/javascript" src="LibraryJavaScript.js"></script>
+        <script src="jquery.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function (){
+                
+                
+                //Retrieving the Authors from the Database 
+               $.when(GetData("http://localhost:7070/api/authors")).done(function(authors){
+                            if(authors!=null){
+                                addAuthors(authors);  
+                                $('select[name="selectAuthors"]').find('option[value="Joshua Devireddy"]').attr("selected",true);
+                              $('select[name="selectAuthors"]').find('option[value="Joshua Devireddy"]').append("<span>default</span>")  ;
+                            }
+                            
+                        });
+                
+                  //Retrieving the Publishers from the Database
+                $.when(GetData("http://localhost:7070/api/publishers")).done(function(publishers){
+                            if(publishers!=null){
+                               addPublishers(publishers);
+                            }
+                            
+                        });
+              
+                $('select').on('change', function(){
+                        $(this).find('option').each(function(index,opt){
+                            if(opt.is(":selected")){
+                                this.append("<span>hello</span>");
+                            }
+                    
+                        });
+                        
+                    
+                        
+                    
+                        });
+                
+                
+               
+                
+                //Function sendData Test
+                function sendData(newBook){
+                    
+                    
+                    
+                    $.ajax({
+                        method: "POST",
+                        url: "http://localhost:7070/api/books",                        
+                        data: newBook
+                        })
+                        .done(function(msg){
+                        alert("Saved"+msg);
+                        EmptyInputs();
+                        })
+                        .fail(function(msg){
+                           alert("Failed"+msg);
+                        })
+                        .always(function(){
+                            alert("Always executed");
+                       }); 
+                }
+                
+                
+               
+                
+                //Sending the data to the database
+                   $('#savebutton').click(function(){
+                       
+                       //validating the inputs
+                        if(!validatingInputs()){
+                            
+                            return false;
+                        }
+                       
+                       var newBook=GetBookJson();
+                       
+                       
+                       //Sending the data to the database
+                       sendData(newBook);
+                   });
+                
+                
+            })
+        
+        </script>
+                  
+    </head>
+    <header>
+            <div class="navbar navbar-inverse navbar-static-top">
+                <div class="container">
+                   <h1 style="color: aqua;text-align: center;float: none">LibraryManageSystem</h1>
+                    <button class="navbar-toggle" data-toggle="collapse" data-target=".navHeaderCollapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <div class="collapse navbar-collapse navHeaderCollapse">
+                    <ul class="nav navbar-nav">
+                        <li class="nav active"><a href="#">Home</a></li>
+                        <li class="nav"><a href="#">Book</a></li>
+                        <li class="nav"><a href="#">Author</a></li>
+                        <li class="nav"><a href="#">Publisher</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                       <li class="nav"><a href="#">About</a></li>
+                       <li class="nav"><a href="#">Contact</a></li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+    <body>
+        
+        <div class="container" style="background-color: darkcyan">
+            <div class="row">
+                <div class="page-header" style="background-color: salmon;">
+                    <h3 style='color: green;text-align: center'>NEW BOOK</h3>
+                </div>
+                <div>
+                    <h3 style="text-align: center; color:cadetblue">Enter Book Details</h3>
+                </div>
+            </div>
+            <div class="row">
+                    <br />
+                    <br />
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-offset-1 control-label" style="text-align: left"></label>
+                    <div class="col-sm-5">
+                        <div class="input-group">
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-book"></span></span>
+                            <input id='inputTitle' type="text" class="form-control" placeholder="Enter Title" />
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-offset-1 control-label" style="text-align:left">Genre</label>
+                    <div class="col-sm-5 selectContainer">
+                    <div class="input-group">
+                        
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-folder-close"></span></span>
+                            <select id='selectGenre' class="form-control" title="ChooseGenre">
+                                <option disabled>--Select Genre--</option>
+                                <option value="Science" >Science</option>
+                                <option value="SoftwareTechnology" onselect="validateoption()">SoftwareTechnology</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Literature">Literature</option>
+                                <option value="Biography">Biography</option>
+                                <option value="General">General</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-offset-1 control-label" style="text-align: left">Authors</label>
+                    <div class="col-sm-5 selectContainer">
+                        <div class="input-group"> 
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+                        <select id="selectAuthors" class="form-control" name="selectAuthors" multiple>
+                            <option disabled>--Select Author--</option>
+                            
+                        </select>
+                      </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-offset-1 control-label" style="text-align: left">Publisher</label>
+                    <div class="col-sm-5 selectContainer">
+                        <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-print"></span></span>
+                        <select id="selectPublisher" class="form-control" title="SelectPublishers">
+                            <option disabled>--Select Publisher--</option>
+                            
+                        </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-offset-1 control-label" style="text-align: left">Enter Edition</label>
+                    <div class="col-sm-5">
+                        <input id="inputEdition" type="text" class="form-control" placeholder="It can be string" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-offset-1 control-label" style="text-align: left">Enter Price</label>
+                    <div class="col-sm-5">
+                        <input id="inputPrice" type="text" class="form-control" placeholder="Only Numeric values" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-sm-offset-1 control-label" style="text-align: left">Enter Number of Copies</label>
+                    <div class="col-sm-5">
+                        <input id="inputCopies" type="number" class="form-control" placeholder="Only Integers" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-9 col-sm-offset-3">
+                        <input id='savebutton' type="button" text="Add" value="Save" class="btn btn-success" />
+                        <input id='resetbutton' type="reset" value="Reset" class="btn btn-warning" />
+                        <a href="home.html" class="btn btn-danger">Cancel</a>
+                    </div>
+                </div>
+                    </form>
+                
+                   
+                
+            </div>
+        </div>
+        <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="jquery.js"></script>
+    </body>
+</html>
+        
